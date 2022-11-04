@@ -38,38 +38,18 @@ namespace SectionPropertyCalculator.Controls
         // Is the control clicked or activated
         public bool IsActiveResize { get; set; } = false;
 
-        public int SCALE_FACTOR { get; set; } = 25;
+        public int SCALE_FACTOR { get; set; } = 15;
 
         public double ScreenWidth { 
             get
             {
                 return ViewModel.Model.Width * SCALE_FACTOR;
-                //if(IsActiveResize == true)
-                //{
-                //    return 100;
-                //} else
-                //{
-                //    return 20;
-                //}
-
-  //              Update();
             } 
         }
         public double ScreenHeight {
             get
             {
                 return ViewModel.Model.Height * SCALE_FACTOR;
-
-                //if (IsActiveResize == true)
-                //{
-                //    return 100;
-                //}
-                //else
-                //{
-                //    return 20;
-                //}
-
-                //               Update();
             }
         }
 
@@ -205,8 +185,8 @@ namespace SectionPropertyCalculator.Controls
         private void ReiszeAdorner_UpdateRequired(object sender, RoutedEventArgs e)
         {
             ResizeAdorner adorn = sender as ResizeAdorner;
-            ViewModel.Model.Width = adorn.Width / SCALE_FACTOR;
-            ViewModel.Model.Height = adorn.Height / SCALE_FACTOR;
+            ViewModel.Model.Width = adorn.ControlWidth / SCALE_FACTOR;
+            ViewModel.Model.Height = adorn.ControlHeight / SCALE_FACTOR;
 
             Update();
 

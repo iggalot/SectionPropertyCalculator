@@ -10,27 +10,50 @@ namespace SectionPropertyCalculator.ViewModels
 {
     public class CompositeSectionViewModel : BaseViewModel
     {
-        public CompositeShapeModel CompShapeModel { get; set; } = new CompositeShapeModel();
-
         public List<PlateViewModel> lstPlateViewModel { get; set; } = new List<PlateViewModel>();
 
-        public CompositeSectionViewModel(CompositeShapeModel model)
+        public string PlateInfoString
         {
-            CompShapeModel = model;
-
-            lstPlateViewModel.Clear();
-
-            // create the view models
-            foreach(var item in CompShapeModel.Plates)
+            get
             {
-                PlateViewModel view_model = new PlateViewModel(item);
-                lstPlateViewModel.Add(view_model);
+                return GetPlateListString();
             }
         }
 
-        public void Add(PlateViewModel plate_view_model)
+
+        public CompositeSectionViewModel(CompositeShapeModel model)
         {
-            lstPlateViewModel.Add(plate_view_model);
+            // Assemble the view models for all of the plates of the composite shape model
+            CreateCompositePlateViewModel(model);
         }
+
+        protected void CreateCompositePlateViewModel(CompositeShapeModel model)
+        {
+            lstPlateViewModel.Clear();
+
+            // create the view models
+            foreach (var item in model.Plates)
+            {
+                lstPlateViewModel.Add(new PlateViewModel(item));
+            }
+        }
+
+        private string GetPlateListString()
+        {
+            string str = "";
+            foreach (PlateViewModel plate_vm in lstPlateViewModel)
+            {
+                str += "\nID: " + plate_vm.Model.Id + "  W: " + plate_vm.Model.Width + "   H: " + plate_vm.Model.Height;
+            }
+
+            return str;
+        }
+
+        public void Update()
+        {
+            OnPropertyChanged("PlateInfoString");
+        }
+
+
     }
 }

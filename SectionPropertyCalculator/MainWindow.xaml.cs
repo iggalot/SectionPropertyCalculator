@@ -2,19 +2,8 @@
 using SectionPropertyCalculator.Models;
 using SectionPropertyCalculator.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace SectionPropertyCalculator
 {
@@ -24,12 +13,15 @@ namespace SectionPropertyCalculator
     public partial class MainWindow : Window
     {
         CompositeSectionViewModel CompositeSectionVM { get; set; }
+        CompositeShapeModel CompShapeModel { get; set; } = new CompositeShapeModel();
 
         public MainWindow()
         {
             InitializeComponent();
 
             OnUserCreate();
+
+            DataContext = CompositeSectionVM;
 
             OnUserUpdate();
         }
@@ -40,16 +32,15 @@ namespace SectionPropertyCalculator
         /// <exception cref="NotImplementedException"></exception>
         private void OnUserCreate()
         {
-            CompositeShapeModel shape_model = new CompositeShapeModel();
-
+            // Create some plates
             PlateModel model1 = new PlateModel(1, 6, 4, new Point(5, 2));
-            shape_model.AddPlate(model1);
+            CompShapeModel.AddPlate(model1);
 
             PlateModel model2 = new PlateModel(2, 2, 10, new Point(1, 5));
-            shape_model.AddPlate(model2);
+            CompShapeModel.AddPlate(model2);
 
-            // Recreate the view model
-            CompositeSectionVM = new CompositeSectionViewModel(shape_model);
+            // Finnaly create the view model
+            CreateCompositeViewModel();
         }
 
         /// <summary>
@@ -62,43 +53,70 @@ namespace SectionPropertyCalculator
             spPlateDataControls.Children.Clear();
             spResultsControls.Children.Clear();
 
+            // Recreate  the composite view model
+            CreateCompositeViewModel();
+
             // recreate the controls
-            foreach (PlateModel item in CompositeSectionVM.CompShapeModel.Plates)
+            foreach (PlateViewModel item in CompositeSectionVM.lstPlateViewModel)
             {
-                PlateViewModel view_model = new PlateViewModel(item);
-                PlateDataControl pdc_uc = new PlateDataControl(view_model);
+                PlateDataControl pdc_uc = new PlateDataControl(item);
                 spPlateDataControls.Children.Add(pdc_uc);
 
                 // Add to the canvas and hook up click events
-                PlateCanvasControl pcc_uc = new PlateCanvasControl(view_model);
+                PlateCanvasControl pcc_uc = new PlateCanvasControl(item);
                 AddPlateCanvasControlEvents(pcc_uc);
                 cCanvasControls.Children.Add(pcc_uc);
                 Canvas.SetLeft(pcc_uc, pcc_uc.SetLeft);
                 Canvas.SetTop(pcc_uc, pcc_uc.SetTop);
-
-                // Add to the composite section view model
-                CompositeSectionVM.Add(view_model);
             }
         }
 
+        /// <summary>
+        /// Creates the composite view model for our  constructed model and sets the data context
+        /// </summary>
+        protected void CreateCompositeViewModel()
+        {
+            CompositeSectionVM = new CompositeSectionViewModel(CompShapeModel);
+            DataContext = CompositeSectionVM;
+        }
 
         protected void AddPlateCanvasControlEvents(UserControl uc)
         {
             // set up the events for the plate controls on the drawing canvas
-            ((PlateCanvasControl)uc).OnControlModified += UpdateCanvasEvent;
+            ((PlateCanvasControl)uc).OnControlModified += UpdatePlateModelInfo;
 
         }
 
-        private void UpdateCanvasEvent(object sender, RoutedEventArgs e)
+        private void UpdatePlateModelInfo(object sender, RoutedEventArgs e)
         {
             // retrieve the view model in the sender
             PlateCanvasControl pcc = sender as PlateCanvasControl;
+
+            // find the plate id in the composite model list
+            for (int i = 0; i < CompShapeModel.Plates.Count; i++)
+            {
+                int id = CompShapeModel.Plates[i].Id;
+
+                // if the ids match, update the dimensions in the composite model list
+                if(id == pcc.ViewModel.Model.Id)
+                {
+                    CompShapeModel.Plates[i].Height = pcc.ScreenHeight / pcc.SCALE_FACTOR;
+                    CompShapeModel.Plates[i].Width = pcc.ScreenWidth / pcc.SCALE_FACTOR;
+
+                    break;
+                }
+            }
+
+           // CreateCompositeViewModel();
+            CompositeSectionVM.Update();
+
+
 
             // delete the control
 
             // recreate the control and adorner
 
-            Console.WriteLine("\nNew dims: " + pcc.ViewModel.ScreenWidth + "  :  " + pcc.ViewModel.Model.Height);
+            //           Console.WriteLine("\nNew dims: " + pcc.ViewModel.ScreenWidth + "  :  " + pcc.ViewModel.Model.Height);
 
             // update the view model
 
@@ -106,7 +124,7 @@ namespace SectionPropertyCalculator
 
             //Button control = sender as Button;
             //control.Background = Brushes.Red;
-            //MessageBox.Show("Control was clicked");
+            //MessageBox.Show("Canvas Control was clicked");
         }
     }
 }

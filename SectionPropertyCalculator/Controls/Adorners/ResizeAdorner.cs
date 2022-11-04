@@ -24,10 +24,10 @@ namespace SectionPropertyCalculator.Controls.Adorners
         /// <summary>
         /// Details for the adorner
         /// </summary>
-        double SCREEN_SCALE_FACTOR;
-        double ControlWidth;
-        double ControlHeight;
-        double ModelId;
+        public double SCREEN_SCALE_FACTOR;
+        public double ControlWidth;
+        public double ControlHeight;
+        public double ModelId;
 
         // Events associated with the adorner to signal the main applicaton that something has changed
         public static readonly RoutedEvent OnAdornerModifiedEvent = EventManager.RegisterRoutedEvent("UpdateModelRequired", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(PlateCanvasControl));
