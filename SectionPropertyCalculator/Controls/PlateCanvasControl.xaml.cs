@@ -17,6 +17,9 @@ namespace SectionPropertyCalculator.Controls
     /// </summary>
     public partial class PlateCanvasControl : UserControl, INotifyPropertyChanged
     {
+        private double cCanvasWidth;
+        private double cCanvasHeight;
+
         private double DEFAULT_ACTIVE_OPACITY_PERCENT = 80;
         private Brush DEFAULT_ACTIVE_COLOR = Brushes.Pink;
         
@@ -48,7 +51,7 @@ namespace SectionPropertyCalculator.Controls
         // Is the control clicked or activated
         public bool IsActiveResize { get; set; } = false;
 
-        public int SCALE_FACTOR { get; set; } = 15;
+        public int SCALE_FACTOR { get; set; } = 1;
 
         public double ScreenWidth { 
             get
@@ -64,8 +67,8 @@ namespace SectionPropertyCalculator.Controls
         }
 
         public Brush GetColor{ get => ViewModel.GetMaterialColor(ViewModel.Model.Material.MaterialType); }
-        public double SetLeft { get => ViewModel.SetLeft * SCALE_FACTOR; }
-        public double SetTop { get => ViewModel.SetLeft * SCALE_FACTOR; }
+        public double SetLeft { get => ViewModel.SetLeft; }
+        public double SetTop { get => ViewModel.SetTop; }
 
 
 
@@ -104,6 +107,8 @@ namespace SectionPropertyCalculator.Controls
             InitializeComponent();
 
             ViewModel = view_model;
+            cCanvasHeight = view_model.cCanvas.Height;
+            cCanvasWidth = view_model.cCanvas.Width;
 
             DataContext = this;
 
@@ -181,8 +186,8 @@ namespace SectionPropertyCalculator.Controls
         /// </summary>
         public void AddResizeAdorner()
         {
-            _resizeAdorner = new ResizeAdorner(RectControl, ViewModel.Model.Id, SCALE_FACTOR);
-            _resizeAdorner.OnAdornerModified += ReiszeAdorner_UpdateRequired;
+            _resizeAdorner = new ResizeAdorner(RectControl, ViewModel.Model.Id, ViewModel.Model.Centroid, ViewModel.Model.TopLeftPt, SCALE_FACTOR);
+            _resizeAdorner.OnAdornerModified += ResizeAdorner_UpdateRequired;
 
             AdornerLayer.GetAdornerLayer(PlateCanvasControlGrid).Add(_resizeAdorner);
 
@@ -192,12 +197,20 @@ namespace SectionPropertyCalculator.Controls
             this.UpdateLayout();
         }
 
-        private void ReiszeAdorner_UpdateRequired(object sender, RoutedEventArgs e)
+        private void ResizeAdorner_UpdateRequired(object sender, RoutedEventArgs e)
         {
             ResizeAdorner adorn = sender as ResizeAdorner;
-            ViewModel.Model.Width = adorn.ControlWidth / SCALE_FACTOR;
-            ViewModel.Model.Height = adorn.ControlHeight / SCALE_FACTOR;
 
+            // Update the centroid with the new width and height
+            ViewModel.Model.Width = adorn.ControlModelWidth_Current / SCALE_FACTOR;
+            ViewModel.Model.Height = adorn.ControlModelHeight_Current / SCALE_FACTOR;
+            ViewModel.Model.Centroid = adorn.ControlModelCentroid;
+
+            //ViewModel.Model.Centroid = new Point(
+            //    (ViewModel.SetLeft + 0.5 * (adorn.ControlWidth / SCALE_FACTOR)), 
+            //    (ViewModel.SetTop + 0.5 * (adorn.ControlHeight / SCALE_FACTOR)));
+
+            tbInfo.Text = ViewModel.Model.Centroid.X.ToString() + ":" + ViewModel.Model.Centroid.Y.ToString();
             Update();
 
             // Raise the event to notify the main application that something has changed

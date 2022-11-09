@@ -20,7 +20,7 @@
                 StrokeThickness="1"
             />
         </AdornerDecorator>
-
+        <TextBlock Name="tbInfo" Width="100" Height="50"/>
     </Grid>
 
     <!--Canvas.Left="{Binding Path=SetLeft, Mode=OneWay}"

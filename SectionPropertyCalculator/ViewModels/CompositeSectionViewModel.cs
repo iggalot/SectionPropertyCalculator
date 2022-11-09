@@ -21,20 +21,20 @@ namespace SectionPropertyCalculator.ViewModels
         }
 
 
-        public CompositeSectionViewModel(CompositeShapeModel model)
+        public CompositeSectionViewModel(CompositeShapeModel model, Canvas c)
         {
             // Assemble the view models for all of the plates of the composite shape model
-            CreateCompositePlateViewModel(model);
+            CreateCompositePlateViewModel(model, c);
         }
 
-        protected void CreateCompositePlateViewModel(CompositeShapeModel model)
+        protected void CreateCompositePlateViewModel(CompositeShapeModel model, Canvas c)
         {
             lstPlateViewModel.Clear();
 
             // create the view models
             foreach (var item in model.Plates)
             {
-                lstPlateViewModel.Add(new PlateViewModel(item));
+                lstPlateViewModel.Add(new PlateViewModel(item, c));
             }
         }
 

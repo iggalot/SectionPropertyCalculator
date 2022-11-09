@@ -11,10 +11,14 @@ namespace SectionPropertyCalculator.ViewModels
 {
     public class PlateViewModel : BaseViewModel
     {
+        public Canvas cCanvas { get; set; }
         public PlateModel Model { get; set; }
 
-        public double SetTop { get; set; }
-        public double SetLeft { get; set; }
+        /// <summary>
+        /// Canvas coordinates for the plate view model
+        /// </summary>
+        public double SetTop { get => cCanvas.Height * 0.5 - 0.5 * Model.Height; }
+        public double SetLeft { get => cCanvas.Width * 0.5 - 0.5 * Model.Width; }
 
         /// <summary>
         /// Finds the color to draw the material fill
@@ -40,11 +44,12 @@ namespace SectionPropertyCalculator.ViewModels
                     throw new System.ArgumentException("In GetMaterialColor: " + type.ToString() + " error");
             }
         }
-        public PlateViewModel(PlateModel model)
+        public PlateViewModel(PlateModel model, Canvas c)
         {
             Model = model;
-            SetLeft = model.Centroid.X;
-            SetTop = model.Centroid.Y;
+            cCanvas = c;
+            //SetLeft = model.Centroid.X - 0.5 * model.Width;
+            //SetTop = model.Centroid.Y - 0.5 * model.Height;
         }
     }
 }

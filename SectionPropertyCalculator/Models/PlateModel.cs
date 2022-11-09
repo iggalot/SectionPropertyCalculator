@@ -24,6 +24,8 @@ namespace SectionPropertyCalculator.Models
         // centroid location
         public Point Centroid { get; set; }
 
+        public Point TopLeftPt { get => new Point (Centroid.X - 0.5 * Width, Centroid.Y - 0.5 * Height); }
+
         // Weight / ft
         public double Weight { get => ComputeWeight(); }
 

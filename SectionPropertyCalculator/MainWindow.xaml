@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SectionPropertyCalculator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="1000"
+        Title="MainWindow" Height="700" Width="1000"
         >
     <Grid Margin="10">
         <StackPanel Orientation="Horizontal">
@@ -16,7 +16,7 @@
                 <StackPanel Name="spResultsControls" Margin="5" Background="Blue" Width="400" Height="200"/>
             </StackPanel>
 
-            <Canvas Name="cCanvasControls" Background ="Transparent" Margin="5" Width="600" Height="600"/>
+            <Canvas Name="cCanvasControls" Background ="LightGray" Margin="5" Width="600" Height="600"/>
         </StackPanel>
     </Grid>
 </Window>
