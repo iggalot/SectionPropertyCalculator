@@ -17,6 +17,14 @@ namespace SectionPropertyCalculator.Controls
     /// </summary>
     public partial class PlateCanvasControl : UserControl, INotifyPropertyChanged
     {
+        private double DEFAULT_ACTIVE_OPACITY_PERCENT = 80;
+        private Brush DEFAULT_ACTIVE_COLOR = Brushes.Pink;
+        
+        private double DEFAULT_INACTIVE_OPACITY_PERCENT = 95;
+        private Brush DEFAULT_INACTIVE_COLOR = Brushes.Red;
+
+
+
         private bool _bIsLoaded = false;
         private ResizeAdorner _resizeAdorner = null;
 
@@ -31,6 +39,8 @@ namespace SectionPropertyCalculator.Controls
 
         // View model for the basis of this control
         public PlateViewModel ViewModel { get; set; }
+
+        public bool IsActivated { get; set; } = false;
 
         // Is the control being hovered over
         public bool IsHovered { get; set; } = false;
@@ -112,74 +122,74 @@ namespace SectionPropertyCalculator.Controls
 
         }
 
-        //private void ContentControl_MouseEnter(object sender, RoutedEventArgs e)
-        //{
-        //    IsHovered = true;
-        //}
-
-        //private void ContentControl_MouseLeave(object sender, RoutedEventArgs e)
-        //{
-        //    IsHovered = false;
-        //}
-
-        //private void ContentControl_Clicked(object sender, RoutedEventArgs e)
-        //{
-        //    IsActiveResize = true;
-        //    RaiseEvent(new RoutedEventArgs(OnControlClickedEvent, this));
-        //}
-
         private void PlateControlClicked(object sender, RoutedEventArgs e)
         {
 //            PlateCanvasControl control = (PlateCanvasControl)sender;
 
             if(_bIsLoaded is true)
             {
+               
                 if (IsActiveResize is true)
                 {
-                    if (_resizeAdorner != null)
-                    {
-                        Adorner[] toRemoveArray = myAdornerLayer.AdornerLayer.GetAdorners(PlateCanvasControlGrid);
-                        Adorner toRemove;
-
-                        if(toRemoveArray != null)
-                        {
-                            for(int i = 0; i < toRemoveArray.Length; i++)
-                            {
-                                toRemove = toRemoveArray[i];
-                                myAdornerLayer.AdornerLayer.Remove(toRemove);
-                            }
-                        }
-
-                        // clear the adorner visual contents
-                        _resizeAdorner.AdornerVisuals.Clear();
-                    }
-
-                    // delete the adorner in this control
-                    _resizeAdorner = null;
-
-                    IsActiveResize = false;
+                    this.RemoveResizeAdorner();
                 }
                 else
                 {
-                    _resizeAdorner = new ResizeAdorner(RectControl, ViewModel.Model.Id, SCALE_FACTOR);
-                    _resizeAdorner.OnAdornerModified += ReiszeAdorner_UpdateRequired;
-
-                    AdornerLayer.GetAdornerLayer(PlateCanvasControlGrid).Add(_resizeAdorner);
-
-                    IsActiveResize = true;
+                    this.AddResizeAdorner();
                 }
-
-//               MessageBox.Show("Active: " + IsActiveResize.ToString());
-
-
-                Update();
-                this.UpdateLayout();
             }
 
             // Raise the event to notify the main application that something has changed
             RaiseEvent(new RoutedEventArgs(PlateCanvasControl.OnControlModifiedEvent));
+            RaiseEvent(new RoutedEventArgs(PlateCanvasControl.OnControlClickedEvent));
+        }
 
+        /// <summary>
+        /// Deactivates the resize adorner for this control
+        /// </summary>
+        public void RemoveResizeAdorner()
+        {
+            if (_resizeAdorner != null)
+            {
+                Adorner[] toRemoveArray = myAdornerLayer.AdornerLayer.GetAdorners(PlateCanvasControlGrid);
+                Adorner toRemove;
 
+                if (toRemoveArray != null)
+                {
+                    for (int i = 0; i < toRemoveArray.Length; i++)
+                    {
+                        toRemove = toRemoveArray[i];
+                        myAdornerLayer.AdornerLayer.Remove(toRemove);
+                    }
+                }
+
+                // clear the adorner visual contents
+                _resizeAdorner.AdornerVisuals.Clear();
+            }
+
+            // delete the adorner in this control
+            _resizeAdorner = null;
+
+            IsActiveResize = false;
+
+            Update();
+            this.UpdateLayout();
+        }
+
+        /// <summary>
+        /// Activates the resize adorner for this control
+        /// </summary>
+        public void AddResizeAdorner()
+        {
+            _resizeAdorner = new ResizeAdorner(RectControl, ViewModel.Model.Id, SCALE_FACTOR);
+            _resizeAdorner.OnAdornerModified += ReiszeAdorner_UpdateRequired;
+
+            AdornerLayer.GetAdornerLayer(PlateCanvasControlGrid).Add(_resizeAdorner);
+
+            IsActiveResize = true;
+
+            Update();
+            this.UpdateLayout();
         }
 
         private void ReiszeAdorner_UpdateRequired(object sender, RoutedEventArgs e)
@@ -192,18 +202,11 @@ namespace SectionPropertyCalculator.Controls
 
             // Raise the event to notify the main application that something has changed
             RaiseEvent(new RoutedEventArgs(PlateCanvasControl.OnControlModifiedEvent));
-
-
         }
 
         private void OnControlLoaded(object sender, RoutedEventArgs e)
         {
-            //PlateCanvasControl control = (PlateCanvasControl)sender;
-
             _bIsLoaded = true;
-
-           // MessageBox.Show(IsActiveResize.ToString());
-            //this.UpdateLayout();
         }
     }
 }

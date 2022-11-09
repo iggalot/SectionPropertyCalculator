@@ -10,7 +10,7 @@
     <Grid Margin="10">
         <StackPanel Orientation="Horizontal">
             <StackPanel Orientation="Vertical">
-                <TextBlock Name="test" Text="{Binding Path=PlateInfoString, Mode=OneWay}" Height="50" Width="400"/>
+                <TextBlock Name="test" Text="{Binding Path=PlateInfoString, Mode=OneWay}" Height ="Auto" Width="400"/>
 
                 <StackPanel Name="spPlateDataControls" Margin="5" Background="Cyan" Width="400" Height="400"/>
                 <StackPanel Name="spResultsControls" Margin="5" Background="Blue" Width="400" Height="200"/>

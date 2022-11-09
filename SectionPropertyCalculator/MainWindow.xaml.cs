@@ -39,6 +39,9 @@ namespace SectionPropertyCalculator
             PlateModel model2 = new PlateModel(2, 2, 10, new Point(1, 5));
             CompShapeModel.AddPlate(model2);
 
+            PlateModel model3 = new PlateModel(3, 8, 1, new Point(10, 10));
+            CompShapeModel.AddPlate(model3);
+
             // Finnaly create the view model
             CreateCompositeViewModel();
         }
@@ -84,12 +87,35 @@ namespace SectionPropertyCalculator
         {
             // set up the events for the plate controls on the drawing canvas
             ((PlateCanvasControl)uc).OnControlModified += UpdatePlateModelInfo;
+            ((PlateCanvasControl)uc).OnControlClicked += DeactivateCanvasControls;
+
 
         }
 
+        private void DeactivateCanvasControls(object sender, RoutedEventArgs e)
+        {
+            // Retrieve the control of the sender
+            PlateCanvasControl pcc = sender as PlateCanvasControl;
+
+            foreach(PlateCanvasControl item in cCanvasControls.Children)
+            {
+                // skip the control if it is the sender, as it is already turned on or off in the pcc class.
+                if ((pcc.ViewModel.Model.Id == item.ViewModel.Model.Id))
+                {
+                    continue;
+                } 
+                // Otherwise turn of all active controls
+                else
+                {
+                    ((PlateCanvasControl)item).RemoveResizeAdorner();
+                }
+            }
+        }
+
+
         private void UpdatePlateModelInfo(object sender, RoutedEventArgs e)
         {
-            // retrieve the view model in the sender
+            // retrieve the control in the sender
             PlateCanvasControl pcc = sender as PlateCanvasControl;
 
             // find the plate id in the composite model list
@@ -109,22 +135,6 @@ namespace SectionPropertyCalculator
 
            // CreateCompositeViewModel();
             CompositeSectionVM.Update();
-
-
-
-            // delete the control
-
-            // recreate the control and adorner
-
-            //           Console.WriteLine("\nNew dims: " + pcc.ViewModel.ScreenWidth + "  :  " + pcc.ViewModel.Model.Height);
-
-            // update the view model
-
-            // update the controls
-
-            //Button control = sender as Button;
-            //control.Background = Brushes.Red;
-            //MessageBox.Show("Canvas Control was clicked");
         }
     }
 }
