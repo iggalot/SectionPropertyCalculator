@@ -11,15 +11,15 @@
              >
 
     <Grid Name="PlateCanvasControlGrid">
-        <AdornerDecorator Name="myAdornerLayer">
+        <!--<AdornerDecorator Name="myAdornerLayer">-->
             <Rectangle Name="RectControl"
                 Width="{Binding Path=ScreenWidth, Mode=OneWay}" 
                 Height="{Binding Path=ScreenHeight, Mode=OneWay}" 
                 Fill="{Binding Path=GetColor, Mode=OneWay}" 
                 Stroke="Black"
-                StrokeThickness="1"
+                StrokeThickness="1"                       
             />
-        </AdornerDecorator>
+        <!--</AdornerDecorator>-->
         <TextBlock Name="tbInfo" Width="100" Height="50"/>
     </Grid>
 

@@ -13,8 +13,11 @@ namespace SectionPropertyCalculator.Controls.Adorners
     /// </summary>
     public class ResizeAdorner : Adorner
     {
+        private double _min_width = 1;
+        private double _min_height = 1;
+
         public VisualCollection AdornerVisuals;
-        Thumb thumb1, thumb2, platecanvas_thumb1, platecanvas_thumb2;
+        Thumb thumb1, thumb2;
         Rectangle Rec;
         TextBlock txtBlock_VertDim;
         TextBlock txtBlock_HorizDim;
@@ -34,7 +37,9 @@ namespace SectionPropertyCalculator.Controls.Adorners
         public double ControlModelHeight_Current;  // current height of the control measured in pixels
 
         public Point ControlModelCentroid; // Centroid of the control on screen measured in pixels
-        public Point ControlModelUpperLeftPt; // Upper left point of bounding box on screen measured in pixels
+        public double ControlModelLeftOffset = 0; // Amount that the offset needs to be moved left from its original point (reference 0,0) on the control
+        public double ControlModelRightOffset = 0; // Amount that the offset needs to be moved up from its original point (reference 0,0) on the control
+
         public int ControlModelId;
 
 
@@ -62,7 +67,7 @@ namespace SectionPropertyCalculator.Controls.Adorners
             ControlModelWidth_Current = rect.Width;
             ControlModelHeight_Current = rect.Height;
 
-            ControlModelUpperLeftPt = upper_left;
+            //ControlModelUpperLeftPt = upper_left;
             ControlModelCentroid = centroid_point;
             ControlModelId = id;
 
@@ -73,8 +78,8 @@ namespace SectionPropertyCalculator.Controls.Adorners
             // Create the adorner elements
             //thumb1 = new Thumb() { Background = Brushes.Coral, Height = 10, Width = 10 };
             thumb2 = new Thumb() { Background = Brushes.Coral, Height = 10, Width = 10 };
-            //platecanvas_thumb1 = new Thumb() { Background = Brushes.Coral, Height = 10, Width = 10 };
-            //platecanvas_thumb2 = new Thumb() { Background = Brushes.Coral, Height = 10, Width = 10 };
+
+
             Rec = new Rectangle() { Stroke = Brushes.Coral, StrokeThickness = 2, StrokeDashArray = { 3, 2 }, Fill=Brushes.Transparent, IsHitTestVisible=false };
             txtBlock_VertDim = new TextBlock() { Text = "VertiDim", FontSize= 20, IsHitTestVisible = false };
             txtBlock_HorizDim = new TextBlock() { Text = "HorizDim", FontSize = 20, IsHitTestVisible = false };
@@ -100,41 +105,6 @@ namespace SectionPropertyCalculator.Controls.Adorners
 
         }
 
-        private void PlateCanvas_Thumb2_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            //var ele = (FrameworkElement)AdornedElement;
-
-            //// Change the height of the control and the rectangle inside of the control
-            //ele.Height = ele.Height - e.VerticalChange < 0 ? 0 : ele.Height - e.VerticalChange;
-
-            //// Change the height of the control and the rectangle inside of the control
-            //ele.Width = ele.Width - e.HorizontalChange < 0 ? 0 : ele.Width - e.HorizontalChange;
-
-            //ControlWidth = ele.Width;
-            //ControlHeight = ele.Height;
-
-            //RaiseEvent(new RoutedEventArgs(ResizeAdorner.OnAdornerModifiedEvent));
-
-
-
-        }
-
-        private void PlateCanvas_Thumb1_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            //var ele = (FrameworkElement)AdornedElement;
-
-            //ele.Height = ele.Height + e.VerticalChange < 0 ? 0 : ele.Height + e.VerticalChange;
-
-            //ele.Width = ele.Width + e.HorizontalChange < 0 ? 0 : ele.Width + e.HorizontalChange;
-
-            //ControlWidth = ele.Width;
-            //ControlHeight = ele.Height;
-
-            //RaiseEvent(new RoutedEventArgs(ResizeAdorner.OnAdornerModifiedEvent));
-
-
-        }
-
         private void Thumb2_DragDelta(object sender, DragDeltaEventArgs e)
         {
             var ele = (FrameworkElement)AdornedElement;
@@ -143,14 +113,18 @@ namespace SectionPropertyCalculator.Controls.Adorners
             double delta_x = ele.Width + e.HorizontalChange < 0 ? 0 : e.HorizontalChange;
             double delta_y = ele.Height + e.VerticalChange < 0 ? 0 : e.VerticalChange;
 
-            ele.Height = (ele.Height + 2 * delta_y) < 0 ? 0 : (ele.Height + 2 * delta_y);
-            ele.Width = (ele.Width + 2 * delta_x) < 0 ? 0 : (ele.Width + 2 * delta_x);
+            ele.Height = (ele.Height + 2 * delta_y) < _min_height ? _min_height : (ele.Height + 2 * delta_y);
+            ele.Width = (ele.Width + 2 * delta_x) < _min_width ? _min_width : (ele.Width + 2 * delta_x);
             //ele.Height = ele.Height - e.VerticalChange < 0 ? 0 : ele.Height - e.VerticalChange;
             //ele.Width = ele.Width - e.HorizontalChange < 0 ? 0 : ele.Width - e.HorizontalChange;
 
             ControlModelWidth_Current = ele.Width;
             ControlModelHeight_Current = ele.Height;
-            ControlModelUpperLeftPt = new Point(upper_left.X - delta_x, upper_left.Y - delta_y);
+            ControlModelLeftOffset += e.HorizontalChange;
+            ControlModelRightOffset += e.VerticalChange;
+
+
+            //ControlModelUpperLeftPt = new Point(upper_left.X - delta_x, upper_left.Y - delta_y);
             //           ControlCentroid = new Point(ControlUpperLeftPt.X + 0.5 * ele.Width, ControlUpperLeftPt.Y + 0.5 * ele.Height);
 
             RaiseEvent(new RoutedEventArgs(ResizeAdorner.OnAdornerModifiedEvent));
@@ -203,11 +177,29 @@ namespace SectionPropertyCalculator.Controls.Adorners
 
 
             // Get screen position of the adorned element
-            Point pos = AdornedElement.PointToScreen(new Point(0, 0));
-            double x = 0.5 * (ControlModelWidth_Current - ControlModelWidth_Original);
-            double y = 0.5 * (ControlModelHeight_Current - ControlModelHeight_Original);
+            double x = ControlModelLeftOffset;
+            double y = ControlModelRightOffset;
 
-            Rec.Arrange(new Rect(-x - 2.5, -y - 2.5, ControlModelWidth_Current + 5 + x, ControlModelHeight_Current + 5 + y));
+            double new_width = ControlModelWidth_Current + 5 + 2*x;
+            double new_height = ControlModelHeight_Current + 5 + 2*y;
+
+            // make sure our width and height are not negative
+            if (new_width < 0 || new_height < 0)
+                return finalSize;
+            else
+            {
+                ControlModelWidth_Current = new_width - 5;
+                ControlModelHeight_Current = new_height - 5;
+            }
+
+            double new_left_offset = -x - 2.5;
+            double new_top_offset = -y - 2.5;
+
+
+            Rec.Arrange(new Rect(-x - 2.5, -y - 2.5, new_width, new_height));
+
+            Console.WriteLine("W: " + ControlModelWidth_Current + "   H: " + ControlModelHeight_Current +  "    x: " + x + "   y: " + y);
+
 
 
             // the resize grips

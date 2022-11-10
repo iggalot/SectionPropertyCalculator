@@ -11,14 +11,22 @@ namespace SectionPropertyCalculator.ViewModels
 {
     public class PlateViewModel : BaseViewModel
     {
+        private double _x_offset = 200;
+        private double _y_offset = 200;
+
         public Canvas cCanvas { get; set; }
         public PlateModel Model { get; set; }
 
         /// <summary>
         /// Canvas coordinates for the plate view model
         /// </summary>
-        public double SetTop { get => cCanvas.Height * 0.5 - 0.5 * Model.Height; }
-        public double SetLeft { get => cCanvas.Width * 0.5 - 0.5 * Model.Width; }
+        public double SetTop { get => cCanvas.Height * 0.5 + Model.TopLeftPt.Y; }
+        public double SetLeft { get => cCanvas.Width * 0.5 + Model.TopLeftPt.X; }
+
+
+
+
+
 
         /// <summary>
         /// Finds the color to draw the material fill
@@ -50,6 +58,12 @@ namespace SectionPropertyCalculator.ViewModels
             cCanvas = c;
             //SetLeft = model.Centroid.X - 0.5 * model.Width;
             //SetTop = model.Centroid.Y - 0.5 * model.Height;
+        }
+
+        public void Update()
+        {
+            OnPropertyChanged("SetLeft");
+            OnPropertyChanged("SetTop");
         }
     }
 }

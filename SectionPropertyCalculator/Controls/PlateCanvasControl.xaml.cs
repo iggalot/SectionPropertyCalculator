@@ -17,19 +17,9 @@ namespace SectionPropertyCalculator.Controls
     /// </summary>
     public partial class PlateCanvasControl : UserControl, INotifyPropertyChanged
     {
-        private double cCanvasWidth;
-        private double cCanvasHeight;
-
-        private double DEFAULT_ACTIVE_OPACITY_PERCENT = 80;
-        private Brush DEFAULT_ACTIVE_COLOR = Brushes.Pink;
-        
-        private double DEFAULT_INACTIVE_OPACITY_PERCENT = 95;
-        private Brush DEFAULT_INACTIVE_COLOR = Brushes.Red;
-
-
-
         private bool _bIsLoaded = false;
-        private ResizeAdorner _resizeAdorner = null;
+        //private ResizeAdorner _resizeAdorner = null;
+        private CResizeAdorner _resizeAdorner = null;
 
         // Create the OnPropertyChanged method to raise the event
         // The calling member's name will be used as the parameter.
@@ -107,8 +97,6 @@ namespace SectionPropertyCalculator.Controls
             InitializeComponent();
 
             ViewModel = view_model;
-            cCanvasHeight = view_model.cCanvas.Height;
-            cCanvasWidth = view_model.cCanvas.Width;
 
             DataContext = this;
 
@@ -129,24 +117,20 @@ namespace SectionPropertyCalculator.Controls
 
         private void PlateControlClicked(object sender, RoutedEventArgs e)
         {
-//            PlateCanvasControl control = (PlateCanvasControl)sender;
-
-            if(_bIsLoaded is true)
+            if(IsActiveResize is false)
             {
-               
-                if (IsActiveResize is true)
-                {
-                    this.RemoveResizeAdorner();
-                }
-                else
-                {
-                    this.AddResizeAdorner();
-                }
+                _resizeAdorner = new CResizeAdorner(RectControl, 300, 300);
+                IsActiveResize = true;
+            } else
+            {
+                this.RemoveResizeAdorner();
             }
 
-            // Raise the event to notify the main application that something has changed
+            //// Raise the event to notify the main application that something has changed
             RaiseEvent(new RoutedEventArgs(PlateCanvasControl.OnControlModifiedEvent));
-            RaiseEvent(new RoutedEventArgs(PlateCanvasControl.OnControlClickedEvent));
+            
+            
+            //RaiseEvent(new RoutedEventArgs(PlateCanvasControl.OnControlClickedEvent));
         }
 
         /// <summary>
@@ -156,7 +140,18 @@ namespace SectionPropertyCalculator.Controls
         {
             if (_resizeAdorner != null)
             {
-                Adorner[] toRemoveArray = myAdornerLayer.AdornerLayer.GetAdorners(PlateCanvasControlGrid);
+                AdornerLayer aLayer = AdornerLayer.GetAdornerLayer(this);
+
+                if (aLayer == null)
+                {
+                    // Clear the visual children
+                    _resizeAdorner.visualChildren.Clear();
+
+                    return;
+
+                }
+
+                Adorner[] toRemoveArray = aLayer.GetAdorners(PlateCanvasControlGrid);
                 Adorner toRemove;
 
                 if (toRemoveArray != null)
@@ -164,12 +159,12 @@ namespace SectionPropertyCalculator.Controls
                     for (int i = 0; i < toRemoveArray.Length; i++)
                     {
                         toRemove = toRemoveArray[i];
-                        myAdornerLayer.AdornerLayer.Remove(toRemove);
+                        aLayer.Remove(toRemove);
                     }
                 }
 
                 // clear the adorner visual contents
-                _resizeAdorner.AdornerVisuals.Clear();
+                _resizeAdorner.visualChildren.Clear();
             }
 
             // delete the adorner in this control
@@ -186,10 +181,12 @@ namespace SectionPropertyCalculator.Controls
         /// </summary>
         public void AddResizeAdorner()
         {
-            _resizeAdorner = new ResizeAdorner(RectControl, ViewModel.Model.Id, ViewModel.Model.Centroid, ViewModel.Model.TopLeftPt, SCALE_FACTOR);
-            _resizeAdorner.OnAdornerModified += ResizeAdorner_UpdateRequired;
+            _resizeAdorner = new CResizeAdorner(RectControl, 300, 300);
 
-            AdornerLayer.GetAdornerLayer(PlateCanvasControlGrid).Add(_resizeAdorner);
+            //_resizeAdorner = new ResizeAdorner(RectControl, ViewModel.Model.Id, ViewModel.Model.Centroid, ViewModel.Model.TopLeftPt, SCALE_FACTOR);
+            //_resizeAdorner.OnAdornerModified += ResizeAdorner_UpdateRequired;
+
+            //AdornerLayer.GetAdornerLayer(PlateCanvasControlGrid).Add(_resizeAdorner);
 
             IsActiveResize = true;
 
@@ -204,6 +201,9 @@ namespace SectionPropertyCalculator.Controls
             // Update the centroid with the new width and height
             ViewModel.Model.Width = adorn.ControlModelWidth_Current / SCALE_FACTOR;
             ViewModel.Model.Height = adorn.ControlModelHeight_Current / SCALE_FACTOR;
+
+            ViewModel.Model.TopLeftPt = new Point(ViewModel.Model.Width + adorn.ControlModelLeftOffset, adorn.ControlModelRightOffset);
+
             ViewModel.Model.Centroid = adorn.ControlModelCentroid;
 
             //ViewModel.Model.Centroid = new Point(
@@ -214,12 +214,14 @@ namespace SectionPropertyCalculator.Controls
             Update();
 
             // Raise the event to notify the main application that something has changed
-            RaiseEvent(new RoutedEventArgs(PlateCanvasControl.OnControlModifiedEvent));
+ //           RaiseEvent(new RoutedEventArgs(PlateCanvasControl.OnControlModifiedEvent));
         }
 
         private void OnControlLoaded(object sender, RoutedEventArgs e)
         {
             _bIsLoaded = true;
+
+
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using SectionPropertyCalculator.Controls;
+using SectionPropertyCalculator.Controls.Adorners;
 using SectionPropertyCalculator.Models;
 using SectionPropertyCalculator.ViewModels;
 using System;
@@ -35,11 +36,11 @@ namespace SectionPropertyCalculator
         private void OnUserCreate()
         {
             // Create some plates
-            PlateModel model1 = new PlateModel(1, 300, 200, new Point(0,0));
+            PlateModel model1 = new PlateModel(1, 200, 200, new Point(0,0));
             CompShapeModel.AddPlate(model1);
 
-            //PlateModel model2 = new PlateModel(2, 50, 200, new Point(100, 250));
-            //CompShapeModel.AddPlate(model2);
+            PlateModel model2 = new PlateModel(2, 50, 200, new Point(300, 300));
+            CompShapeModel.AddPlate(model2);
 
             //PlateModel model3 = new PlateModel(3, 200, 40, new Point(300, 200));
             //CompShapeModel.AddPlate(model3);
@@ -115,6 +116,18 @@ namespace SectionPropertyCalculator
 
         private void UpdatePlateModelInfo(object sender, RoutedEventArgs e)
         {
+            Console.WriteLine("\n--------------------");
+            foreach (FrameworkElement fe in cCanvasControls.Children)
+            {
+                double top = (double)fe.GetValue(Canvas.TopProperty);
+                double left = (double)fe.GetValue(Canvas.LeftProperty);
+
+                fe.SetCurrentValue(Canvas.TopProperty, Canvas.GetTop(fe) - 50);
+                fe.SetCurrentValue(Canvas.LeftProperty, Canvas.GetLeft(fe) - 50);
+
+                Console.WriteLine("--coords: " + top.ToString() + " : " + left.ToString());
+            }
+
             // retrieve the control in the sender
             PlateCanvasControl pcc = sender as PlateCanvasControl;
 
@@ -133,8 +146,18 @@ namespace SectionPropertyCalculator
                 }
             }
 
+            pcc.Update();
+
            // CreateCompositeViewModel();
             CompositeSectionVM.Update();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            new CResizeAdorner(button1, 300, 300);
+            new CResizeAdorner(datagrid1, 300, 300);
+            new CResizeAdorner(textbox1, 300, 300);
+
         }
     }
 }

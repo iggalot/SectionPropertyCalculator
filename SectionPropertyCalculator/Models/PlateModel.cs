@@ -24,7 +24,8 @@ namespace SectionPropertyCalculator.Models
         // centroid location
         public Point Centroid { get; set; }
 
-        public Point TopLeftPt { get => new Point (Centroid.X - 0.5 * Width, Centroid.Y - 0.5 * Height); }
+        // Top left point of the plate -- used for inserting the control
+        public Point TopLeftPt { get; set; }
 
         // Weight / ft
         public double Weight { get => ComputeWeight(); }
@@ -63,6 +64,14 @@ namespace SectionPropertyCalculator.Models
             Width = width;
             Height = height;
             Centroid = point;
+
+            SetTopLeftCoordinate();
+           
+        }
+
+        public void SetTopLeftCoordinate()
+        {
+            TopLeftPt = new Point(Centroid.X - 0.5 * Width, Centroid.Y - 0.5 * Height);
         }
 
         /// <summary>

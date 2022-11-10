@@ -5,10 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SectionPropertyCalculator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="700" Width="1000"
+        Title="MainWindow" Height="800" Width="1800" Loaded="Window_Loaded"
         >
     <Grid Margin="10">
         <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Vertical">
+                <Button Name="button1" Content="Button" HorizontalAlignment="Left" Margin="18,120,0,0" VerticalAlignment="Top" Width="75"/>
+                <DataGrid Name="datagrid1" HorizontalAlignment="Left" Height="100" Margin="152,121,0,0" VerticalAlignment="Top" Width="100"/>
+                <TextBox Name="textbox1" HorizontalAlignment="Left" Height="89" Margin="332,121,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="108"/>
+            </StackPanel>
             <StackPanel Orientation="Vertical">
                 <TextBlock Name="test" Text="{Binding Path=PlateInfoString, Mode=OneWay}" Height ="Auto" Width="400"/>
 

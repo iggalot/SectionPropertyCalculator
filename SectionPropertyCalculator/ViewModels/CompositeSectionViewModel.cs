@@ -51,6 +51,10 @@ namespace SectionPropertyCalculator.ViewModels
 
         public void Update()
         {
+            foreach (var item in lstPlateViewModel)
+            {
+                item.Update();
+            }
             OnPropertyChanged("PlateInfoString");
         }
 
